@@ -3,25 +3,31 @@
 #include "Player.h"
 #include "Walls.h"
 #include "Ball.h"
+#include "Gate.h"
 
-#define SCALE 30.0f
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-#define BALL_RADIUS 10.0f
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
     window.setFramerateLimit(60);
 
+    // Physics variables
+    float timeStep = 1.0f / 60.0f;
+    int32 velocityIterations = 6;
+    int32 positionIterations = 6;
+
     // Create the physics world
-    b2Vec2 gravity(0.0f, 0.0f);
-    b2World world(gravity);
+    b2World world({0.0f,0.0f});
 
-    // Create player 1
-    Player player1(world, sf::Vector2f(100.0f, 100.0f), sf::Color::Red, "Player 1");
+    // Create gates
+    Gate gate1(false);
+    Gate gate2(true);
 
-    // Create player 2
-    Player player2(world, sf::Vector2f(400.0f, 100.0f), sf::Color::Blue, "Player 2");
+    // Create players
+    Player player1(world, sf::Vector2f(WINDOW_WIDTH/3, WINDOW_HEIGHT/2), sf::Color::Red, "Player 1");
+    Player player2(world, sf::Vector2f(2*WINDOW_WIDTH/3, WINDOW_HEIGHT/2), sf::Color::Blue, "Player 2");
+    
+    const float player1_speed = 25.0f;
+    const float player2_speed = 25.0f;
 
     // Create walls
     Walls walls(world, window.getSize().x, window.getSize().y);
@@ -43,11 +49,9 @@ int main() {
         }
 
         // Clear the window
-        window.clear(sf::Color(45, 95, 15));
+        window.clear(sf::Color(10, 200, 10));
 
         // Handle keyboard input
-        const float player1_speed = 25.0f;
-        const float player2_speed = 25.0f;
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
             player1.ApplyForce(b2Vec2(0.0f, -player1_speed));
@@ -76,24 +80,23 @@ int main() {
         }
 
         // Update physics
-        float timeStep = 1.0f / 60.0f;
-        int32 velocityIterations = 6;
-        int32 positionIterations = 2;
 
         world.Step(timeStep, velocityIterations, positionIterations);
 
-        // Keep players within window bounds
-        //player1.ClampToWindowBounds(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-        //player2.ClampToWindowBounds(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+        // Check for collisions
+        gate1.CheckCollision(ball);
+        gate2.CheckCollision(ball);
 
         // Draw objects to the screen
+        gate1.Draw(window);
+        gate2.Draw(window);
         ball.Draw(window);
         player1.Draw(window);
         player2.Draw(window);
         walls.Draw(window);
 
-    // Update the window
-    window.display();
+        // Update the window
+        window.display();
     }
 
     return 0;
