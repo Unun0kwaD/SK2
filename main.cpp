@@ -8,6 +8,9 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define BALL_RADIUS 10.0f
+        float timeStep = 1.0f / 60.0f;
+        int32 velocityIterations = 6;
+        int32 positionIterations = 2;
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
@@ -76,9 +79,6 @@ int main() {
         }
 
         // Update physics
-        float timeStep = 1.0f / 60.0f;
-        int32 velocityIterations = 6;
-        int32 positionIterations = 2;
 
         world.Step(timeStep, velocityIterations, positionIterations);
 
