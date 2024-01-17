@@ -14,7 +14,7 @@ Player::Player(b2World& world, sf::Vector2f position, sf::Color color,std::strin
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;
-    fixtureDef.density = 1.0f;
+    fixtureDef.density = 0.3f;
     fixtureDef.friction = 0.3f;
 
     m_body->CreateFixture(&fixtureDef);

@@ -18,7 +18,7 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(${PROJECT_NAME} main.cpp Player.cpp Walls.cpp Ball.cpp)
+add_executable(${PROJECT_NAME} main.cpp Player.cpp Walls.cpp Ball.cpp Gate.cpp)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources/)
 

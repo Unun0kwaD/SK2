@@ -14,9 +14,9 @@ Ball::Ball(b2World& world, const sf::Vector2f& position, float radius)
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;
-    fixtureDef.density = 1.0f;
+    fixtureDef.density = 0.3f;
     fixtureDef.friction = 0.3f;
-    fixtureDef.restitution = 0.6f;
+    fixtureDef.restitution = 0.9f;
 
     m_body->CreateFixture(&fixtureDef);
 
@@ -37,4 +37,22 @@ void Ball::Draw(sf::RenderWindow& window)
 {
     this->Update();
     window.draw(m_shape);
+}
+
+sf::CircleShape& Ball::GetShape()
+{
+    return m_shape;
+}
+
+void Ball::SetPosition(const sf::Vector2f& position)
+{
+    m_body->SetTransform(b2Vec2(position.x / SCALE, position.y / SCALE), 0);
+}
+
+void Ball::reset()
+{
+    m_body->SetTransform(b2Vec2(0, 0), 0);
+    m_body->SetLinearVelocity(b2Vec2(0, 0));
+    m_body->SetAngularVelocity(0);
+    SetPosition({WINDOW_WIDTH/2,WINDOW_HEIGHT/2});
 }
