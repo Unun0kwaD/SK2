@@ -9,25 +9,22 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <game_state.cpp>
+#include <message_handle.cpp>
 
 #include "Player.h"
 #include "Ball.h"
 #include "Gate.h"
 
+#define PLAYER_SPEED 1.0f;
 // Constants
 const int MAX_PLAYERS = 4;
 const int MAX_OBSERVERS = 6;
 const int PORT = 12345;
 
-// Game state variables
-std::vector<Player> players;
-std::vector<Player> observers;
-Ball ball;
-Gate left_gate({20, 250});
-Gate right_gate({980, 250});
-int score_left = 0;
-int score_right = 0;
-bool game_over = false;
+
+
+GameState gameState;
 
 // Socket variables
 int server_socket;
@@ -47,7 +44,7 @@ int main()
     initialize_game();
 
     // Wait for clients to connect and handle their requests in separate threads
-    while (!game_over)
+    while (!gameState.game_over)
     {
         // Wait for a new client connection
         fd_set read_sockets = active_sockets;
@@ -120,43 +117,30 @@ void initialize_game()
 }
 
 // send game state to all clients
-void send_game_state() {
-    std::string state = create_game_state_message();
+void send_game_state() { 
+    gameState.Step();
+    std::string state = gameState.createGameStateMessage();
     for (auto& c : clients) {
         send_message(c.sockfd, state);
     }
 }
 
 // handle player messages
-void handle_player_message(const std::string& message, int sockfd) {
-    std::string type = get_message_type(message);
+void handle_player_message(const Message& message, int sockfd) {
+    std::string type = message.type;
     if (type == "position") {
         // update player position
-        std::string player_name = get_player_name_from_message(message);
-        int x = get_player_x_position_from_message(message);
-        int y = get_player_y_position_from_message(message);
-        players[player_name].x = x;
-        players[player_name].y = y;
-    } else if (type == "button") {
-        // handle button press
-        std::string player_name = get_player_name_from_message(message);
-        std::string button = get_button_from_message(message);
-        if (button == "left") {
-            players[player_name].vx = -PLAYER_SPEED;
-        } else if (button == "right") {
-            players[player_name].vx = PLAYER_SPEED;
-        } else if (button == "up") {
-            players[player_name].vy = -PLAYER_SPEED;
-        } else if (button == "down") {
-            players[player_name].vy = PLAYER_SPEED;
-        } else if (button == "none") {
-            players[player_name].vx = 0;
-            players[player_name].vy = 0;
-        }
-    } else if (type == "exit") {
+        std::string player_id =message.player_id;
+        int x = message.x;
+        int y = message.y;
+        gameState.addPlayer(player_id,x,y,sf::Color::Blue,message.player_id,message.player_id);
+    } 
+    else if (type == "button") {
+        gameState.updatePlayerPosition(message.player_id,message.x,message.y);
+    }
+    else if (type == "exit") {
         // handle player exit
-        std::string player_name = get_player_name_from_message(message);
-        remove_player(player_name);
+        gameState.removePlayer(message.player_id);
     }
 }
 
@@ -170,8 +154,8 @@ void handle_observer_message(const std::string& message, int sockfd) {
 }
 
 // handle incoming messages from clients
-void handle_message(const std::string& message, int sockfd) {
-    std::string role = get_client_role(sockfd);
+void handle_message(const Message& message, int sockfd) {
+    std::string role = message.role;
     if (role == "player") {
         handle_player_message(message, sockfd);
     } else if (role == "observer") {
@@ -205,13 +189,14 @@ void run() {
         for (auto& c : clients) {
             if (FD_ISSET(c.sockfd, &readfds)) {
                 // client sent a message
-                std::string message = receive_message(c.sockfd);
-                if (message.empty()) {
+                Message received_message;
+                receive_message(c.sockfd,received_message);
+                if (received_message.empty()) {
                     // client disconnected
                     remove_client(c.sockfd);
                 } else {
                     // handle message
-                    handle_message(message, c.sockfd);
+                    handle_message(received_message, c.sockfd);
                 }
             }
         }

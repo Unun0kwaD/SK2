@@ -11,6 +11,9 @@ public:
     void Draw(sf::RenderWindow& window);
     sf::CircleShape& GetShape();
     void reset();
+
+    float get_x();
+    float get_y();
 private:
 
     void SetPosition(const sf::Vector2f& position);

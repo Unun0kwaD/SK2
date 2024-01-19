@@ -7,11 +7,13 @@
 
 class Gate {
 public:
-    Gate(bool isLeft);
+    Gate();
+    Gate(bool isLeft,sf::Font& m_font);
     void Draw(sf::RenderWindow& window);
     bool CheckCollision(Ball& ball);
     void IncrementScore();
-
+    int get_score();
+    void reset();
 private:
     sf::RectangleShape m_shape;
     sf::Text m_scoreText;

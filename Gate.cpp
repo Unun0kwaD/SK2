@@ -1,6 +1,6 @@
 #include "Gate.h"
 
-Gate::Gate(bool isLeft)
+Gate::Gate(bool isLeft, sf::Font& m_font)
     : m_score(0)
 {
     if (isLeft) {
@@ -12,15 +12,14 @@ Gate::Gate(bool isLeft)
     m_shape.setSize(sf::Vector2f(GATE_WIDTH, GATE_HEIGHT));
     m_shape.setFillColor(sf::Color::White);
 
-    if (!m_font.loadFromFile("resources/arial.ttf")) {
-        throw std::runtime_error("Failed to load font");
-    }
-
     m_scoreText.setFont(m_font);
     m_scoreText.setCharacterSize(30);
     m_scoreText.setFillColor(sf::Color::Black);
     m_scoreText.setPosition(sf::Vector2f(m_shape.getPosition().x + (isLeft ? GATE_WIDTH + 20 : -50), m_shape.getPosition().y  + 20));
     m_scoreText.setString(std::to_string(m_score));
+}
+Gate::Gate(){
+    
 }
 
 void Gate::Draw(sf::RenderWindow& window)
@@ -48,4 +47,12 @@ void Gate::IncrementScore()
 {
     m_score++;
     m_scoreText.setString(std::to_string(m_score));
+}
+int Gate::get_score(){
+    return m_score;
+}
+void Gate::reset(){
+    m_score=0;
+    m_scoreText.setString(std::to_string(m_score));
+
 }

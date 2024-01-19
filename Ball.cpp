@@ -56,3 +56,9 @@ void Ball::reset()
     m_body->SetAngularVelocity(0);
     SetPosition({WINDOW_WIDTH/2,WINDOW_HEIGHT/2});
 }
+float Ball::get_x(){
+    return m_body->GetPosition().x;
+}
+float Ball::get_y(){
+    return m_body->GetPosition().y;
+}
