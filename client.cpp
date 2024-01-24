@@ -19,8 +19,6 @@ int main(int argc, char **argv)
     handler.getRoomsInfo();
     handler.selectRoom();
     // select room or create one by sending proper message
-    // get the game state and update it
-    // send message about keys that are pressed or exiting
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
     window.setFramerateLimit(60);
 
@@ -30,8 +28,10 @@ int main(int argc, char **argv)
     sf::Clock clock;
     while (window.isOpen())
     {
+        // get the game state and update it
+        // send message about keys that are pressed or exiting
         
-        handler.recvGameState();
+        std::cout<<handler.recvGameState()<<std::endl;
 
         sf::Event event;
         while (window.pollEvent(event))

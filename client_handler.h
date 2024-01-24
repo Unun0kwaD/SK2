@@ -21,11 +21,11 @@ class Handler{
     int connectToServer(char* ip, char* port);
     int getRoomsInfo();
     int selectRoom();
-    int recvGameState();
+    std::string recvGameState();
     int sendPlayerState();
     private:
     uint16_t number_of_rooms;
-    void sendMessage(char* message,int size);
+    void sendMessage(const char* message,int size);
     void recvMessage(char* message,int size);
     uint16_t recvSize();
     void sendSize(uint16_t size);

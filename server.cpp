@@ -104,7 +104,7 @@ void handleClient(int fd)
         // Read a message
 
         memset(buffer, 0, sizeof(buffer));
-        int count = recv(fd, buffer, sizeof(buffer),0);
+        int count = recv(fd, buffer, recvSize(fd),MSG_WAITALL);
     
         // Handle disconnection
         if (count <= 0)

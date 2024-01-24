@@ -2,6 +2,9 @@
 #include "game_state.cpp"
 #include <vector>
 #include <unordered_set>
+#include <netinet/in.h>
+#include <unistd.h>
+
 #include <mutex>
 class Room{
     public:
