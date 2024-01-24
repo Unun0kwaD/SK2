@@ -33,6 +33,10 @@ int main(int argc, char **argv)
     auto DefaultRoom = std::make_shared<Room>();
     DefaultRoom->name = "Default";
     rooms.emplace_back(DefaultRoom);
+    std::thread t([room = rooms.back()]()
+                        { room->roomLoop(); });
+            t.detach();
+
     auto port = readPort("9999");
 
     int servFd = socket(PF_INET, SOCK_STREAM, 0);
@@ -126,8 +130,8 @@ void handleClient(int fd)
             const char *message = info.c_str();
             uint16_t size = info.length();
             printf("rozmiar wiadmości: %d\n", size);
-            size = htons(size);
-            send(fd, &size, sizeof(uint16_t),0);
+            uint16_t sizeh = htons(size);
+            send(fd, &sizeh, sizeof(uint16_t),0);
             send(fd, message, size,0);
         }
         else if (strcmp(buffer, "createroom") == 0)
@@ -147,6 +151,7 @@ void handleClient(int fd)
             std::thread t([room = rooms.back()]()
                         { room->roomLoop(); });
             t.detach();
+            return;
         }
         else if (strcmp(buffer, "selectroom") == 0)
         {
@@ -155,6 +160,7 @@ void handleClient(int fd)
             uint16_t choise = recvSize(fd);
             std::string name = recvMessage(fd);
             rooms.at(choise)->addClient(fd, name);
+            return;
         }
     }
 }
@@ -164,13 +170,14 @@ uint16_t recvSize(int fd)
     if (recv(fd, &size, sizeof(uint16_t), MSG_WAITALL) < 0)
         perror("read failed");
     size = ntohs(size);
+    printf("Otrzymano rozmiar: %u\n",size);
     return size;
 }
 std::string recvMessage(int fd)
 {
     uint16_t size =recvSize(fd);
     char message[size+1];
-    
+    memset(message,0,size+1);
     int count = recv(fd, message, size, MSG_WAITALL);
     if (count < 0)
     {
@@ -180,7 +187,7 @@ std::string recvMessage(int fd)
     {
         printf("Connection closed by server\n");
     }
-    else if (count < sizeof(message))
+    else if (count < size)
     {
         printf("not whole message recieved\n");
     }

@@ -64,6 +64,9 @@ void Player::moveToPosition(sf::Vector2f position){
     m_body->GetWorld()->DestroyBody(m_body);
     createBody(worldptr,position);
 }
+void Player::moveToPosition(float x,float y){
+    m_body->SetTransform(b2Vec2(x,y),0.0f);
+    }
 void Player::createBody(b2World* world,sf::Vector2f position){
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;

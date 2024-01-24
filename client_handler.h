@@ -1,4 +1,3 @@
-
 #include <netinet/in.h>
 #include <errno.h>
 #include <error.h>
@@ -21,12 +20,13 @@ class Handler{
     int connectToServer(char* ip, char* port);
     int getRoomsInfo();
     int selectRoom();
-    std::string recvGameState();
+    void recvGameState(float coords[14]);
     int sendPlayerState();
     private:
     uint16_t number_of_rooms;
-    void sendMessage(const char* message,int size);
+    void sendMessage(char* message,int size);
     void recvMessage(char* message,int size);
+    void recvCoordinates(float* coordinates,int size);
     uint16_t recvSize();
     void sendSize(uint16_t size);
 };

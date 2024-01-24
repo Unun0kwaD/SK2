@@ -59,21 +59,25 @@ public:
         if (numPlayers % 2)
         {
             color = sf::Color::Red;
-            initialX=WINDOW_WIDTH/3.0f;
+            initialX = WINDOW_WIDTH / 3.0f;
         }
-        else{
+        else
+        {
             color = sf::Color::Blue;
-            initialX=2*WINDOW_WIDTH/3.0f;
+            initialX = 2 * WINDOW_WIDTH / 3.0f;
         }
-        if (numPlayers<2){
-            initialY=WINDOW_HEIGHT/2.0f;
+        if (numPlayers < 2)
+        {
+            initialY = WINDOW_HEIGHT / 2.0f;
         }
-        else if(numPlayers<4){
-            initialY=3*WINDOW_HEIGHT/4.0f;
+        else if (numPlayers < 4)
+        {
+            initialY = 3 * WINDOW_HEIGHT / 4.0f;
         }
-        else initialY=WINDOW_HEIGHT/4.0f;
+        else
+            initialY = WINDOW_HEIGHT / 4.0f;
         numPlayers++;
-        players.emplace_back(Player(world, sf::Vector2f(initialX, initialY), color, name, numPlayers-1, m_font));
+        players.emplace_back(Player(world, sf::Vector2f(initialX, initialY), color, name, numPlayers - 1, m_font));
     }
     void addPlayer(float initialX, float initialY, sf::Color color, std::string name, int id)
     {
@@ -83,7 +87,7 @@ public:
 
     void updatePlayerPosition(int playerId, float newX, float newY)
     {
-        players.at(playerId).ApplyForce(newX,newY);
+        players.at(playerId).ApplyForce(newX, newY);
     }
     void Step()
     {
@@ -105,29 +109,42 @@ public:
         auto iterToRemove = players.begin() + player_id;
         iterToRemove->RemoveBody();
         players.erase(iterToRemove);
-        for (auto it = iterToRemove; it != players.end(); ++it) {
+        for (auto it = iterToRemove; it != players.end(); ++it)
+        {
             it->id = it->id - 1;
         }
         numPlayers--;
     }
 
-    std::string createGameStateMessage()
+    float* createGameStateMessage()
     {
-        std::stringstream ss;
-
-        ss << "game_state { \"players\": [";
-        for (auto &player : players)
+        float* coordinates = new float[14];
+        memset(coordinates, 0, 14);
+        coordinates[0] =static_cast<float>( ball.get_x());
+        coordinates[1] = static_cast<float>(ball.get_y());
+        for (int i = 0; i < players.size(); i++)
         {
-            ss << "{ \"id\": \"" << player.get_id() << "\", \"x\": " << player.get_x() << ", \"y\": " << player.get_y() << " }, ";
+            coordinates[2 + i * 2] = static_cast<float>(players[i].get_x());
+            coordinates[3 + i * 2] = static_cast<float>(players[i].get_y());
         }
-        if (!players.empty())
-        {
-            ss.seekp(-2, std::ios_base::end); // Remove the trailing comma
-        }
-        ss << "], \"ball\": { \"x\": " << ball.get_x() << ", \"y\": " << ball.get_y() << " } }";
-
-        return ss.str();
+        return coordinates;
     }
+
+    void updateFromMessage(float coordinates[14])
+    {
+        ball.setPosition(coordinates[0],coordinates[1]);
+        int i;
+        for (int i = 0; i < players.size(); i++)
+        {
+            players[i].moveToPosition(coordinates[2 + i * 2],coordinates[3 + i * 2]);
+        }
+        // while(i<14 &&coordinates[2 + i * 2]>0 && coordinates[2 + i * 2]>0 ){
+        //     addPlayer("noname");
+        //     players[i].moveToPosition(coordinates[2 + i * 2],coordinates[3 + i * 2]);
+        // }
+
+    }
+
     void Draw(sf::RenderWindow &window)
     {
         gate1.Draw(window);

@@ -16,6 +16,7 @@ public:
     void ApplyForce(float x,float y);
     void ClampToWindowBounds(sf::Vector2f windowSize);
     void Draw(sf::RenderWindow& window);
+    void moveToPosition(float x,float y);
 
     std::string GetName();
     int get_id() ;

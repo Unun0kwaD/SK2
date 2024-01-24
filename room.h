@@ -19,7 +19,7 @@ class Room{
     // void gameLoop();
     void addClient(int fd, std::string name);
     private:
-    void sendGameState();
+    void sendGameState(int fd,float *message, int size);
     int recievePlayersState();
     std::mutex clientFdsMutex;
     std::unordered_set<int> clientFds;

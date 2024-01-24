@@ -48,6 +48,10 @@ void Ball::SetPosition(const sf::Vector2f& position)
 {
     m_body->SetTransform(b2Vec2(position.x / SCALE, position.y / SCALE), 0);
 }
+void Ball::setPosition(float x,float y)
+{
+    m_body->SetTransform(b2Vec2(x / SCALE, y / SCALE), 0);
+}
 
 void Ball::reset()
 {
