@@ -1,7 +1,7 @@
 #include "Player.h"
 #include <iostream>
 
-Player::Player(b2World& world, sf::Vector2f position, sf::Color color,std::string name,std::string in_id,sf::Font& m_font) {
+Player::Player(b2World& world, sf::Vector2f position, sf::Color color,std::string name,int in_id,sf::Font& m_font) {
     // Create the physics body
     createBody(&world,position);
     this->name=name;
@@ -44,7 +44,7 @@ std::string Player::GetName()
 {
     return name;
 }
-std::string Player::get_id() {
+int Player::get_id() {
     return id;
 }
 float Player::get_x(){

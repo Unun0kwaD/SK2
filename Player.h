@@ -10,7 +10,7 @@
 
 class Player {
 public:
-    Player(b2World& world, sf::Vector2f position, sf::Color color,std::string name,std::string id,sf::Font& m_font);
+    Player(b2World& world, sf::Vector2f position, sf::Color color,std::string name,int id,sf::Font& m_font);
     // ~Player();
     void ApplyForce(b2Vec2 force);
     void ApplyForce(float x,float y);
@@ -18,7 +18,7 @@ public:
     void Draw(sf::RenderWindow& window);
 
     std::string GetName();
-    std::string get_id() ;
+    int get_id() ;
 
     float get_x();
     float get_y();
@@ -26,9 +26,9 @@ public:
     void moveToPosition(sf::Vector2f position);
     void moveToInitPosition();
     void RemoveBody();
+    int id;
 private:
     void createBody(b2World* world,sf::Vector2f position);
-    std::string id;
     b2Body* m_body;
     sf::CircleShape m_shape;
     int sockfd;

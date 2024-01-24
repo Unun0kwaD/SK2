@@ -12,10 +12,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>
-
+#include "game_state.cpp"
 
 class Handler{
     public:
+    GameState game;
     int prime_sock;
     int connectToServer(char* ip, char* port);
     int getRoomsInfo();
@@ -24,7 +25,7 @@ class Handler{
     int sendPlayerState();
     private:
     uint16_t number_of_rooms;
-    void sendMessage(char* message);
+    void sendMessage(char* message,int size);
     void recvMessage(char* message,int size);
     uint16_t recvSize();
     void sendSize(uint16_t size);

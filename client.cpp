@@ -16,22 +16,23 @@ int main(int argc, char **argv)
     Handler handler;
     // connect to server and ask for rooms
     handler.connectToServer("127.0.0.1", "9999");
-    int choice = handler.getRoomsInfo();
-        // select room or create one by sending proper message
-        // get the game state and update it
-        // send message about keys that are pressed or exiting
-        sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
+    handler.getRoomsInfo();
+    handler.selectRoom();
+    // select room or create one by sending proper message
+    // get the game state and update it
+    // send message about keys that are pressed or exiting
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
     window.setFramerateLimit(60);
 
     GameState game;
-    game.startNewGame();
-    game.addPlayer(WINDOW_WIDTH / 3.0f, WINDOW_HEIGHT / 2.0f, sf::Color::Red, "Player 1", "1");
-    game.addPlayer(2.0f * WINDOW_WIDTH / 3.0f, WINDOW_HEIGHT / 2.0f, sf::Color::Blue, "Player 2", "2");
-
+    handler.game.startNewGame();
+    float x, y;
     sf::Clock clock;
     while (window.isOpen())
     {
-        // Handle events
+        
+        handler.recvGameState();
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -42,35 +43,29 @@ int main(int argc, char **argv)
                 break;
             }
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-        {
-            game.removePlayer("1");
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
-        {
-            game.addPlayer(WINDOW_WIDTH / 3.0f, WINDOW_HEIGHT / 2.0f, sf::Color::Red, "Player 1", "1");
-        }
+        x = 0.0f;
+        y = 0.0f;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         {
-            game.updatePlayerPosition("1",0.0f,20.0f);
+            y = -20.0f;
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         {
-            game.updatePlayerPosition("1",0.0f,20.0f);
+            y = 20.0f;
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
-            game.updatePlayerPosition("1",0.0f,20.0f);
+            x = -20.0f;
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         {
-            game.updatePlayerPosition("1",0.0f,20.0f);
+            x = 20.0f;
         }
+        handler.sendPlayerState();
+        window.clear(sf::Color(10, 200, 10));
+        game.Draw(window);
+        window.display();
     }
-    window.clear(sf::Color(10, 200, 10));
-    game.Step();
-    game.Draw(window);
-    window.display();
 }
 // // Physics variables
 // float timeStep = 1.0f / 60.0f;

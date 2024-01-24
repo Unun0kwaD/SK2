@@ -20,7 +20,7 @@ set(INCLUDE_DIRS
 
 # add_executable(${PROJECT_NAME} main.cpp Player.cpp Walls.cpp Ball.cpp Gate.cpp game_state.cpp)
 add_executable(Client client.cpp Player.cpp Walls.cpp Ball.cpp Gate.cpp game_state.cpp client_handler.cpp)
-add_executable(Server server.cpp Player.cpp Walls.cpp Ball.cpp Gate.cpp game_state.cpp)
+add_executable(Server server.cpp Player.cpp Walls.cpp Ball.cpp Gate.cpp game_state.cpp room.cpp)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources/)
 
 
