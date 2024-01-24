@@ -1,36 +1,146 @@
+#include <cstdlib>
+#include <cstdio>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <error.h>
+#include <netdb.h>
+#include <sys/epoll.h>
+#include <poll.h>
+#include <thread>
+#include <unordered_set>
+#include <mutex>
+#include <vector>
+#include <string>
+#include "game_state.cpp"
+#include <cstring>
+#include <memory>
 
-#include "server.h"
+std::mutex clientFdsMutex;
+std::unordered_set<int> clientFds;
+std::mutex roomsMutex;
+std::vector<std::shared_ptr<GameState>>  rooms;
 
 
-int main() {
-    // Create the server socket and bind it to a port
-    int server_socket = create_server_socket(PORT_NUMBER);
+uint16_t readPort(char *txt);
+void handleClient(int fd);
 
-    // Initialize the game state and player data structures
-    GameState game_state;
-    std::vector<Player> players(MAX_PLAYERS);
-    std::vector<Observer> observers(MAX_OBSERVERS);
+const int one = 1;
 
-    // Run the game loop
-    while (true) {
-        // Accept new client connections
-        int client_socket = accept_client_connection(server_socket, players, observers);
+int main(int argc, char **argv)
+{
+    // prime sockets waits for new clients
+    // create initial room;
+    GameState initRoom;
+    auto newGameState = std::make_shared<GameState>();
+    newGameState->name="Default";
+    // Add the new GameState to the vector using emplace_back
+    rooms.emplace_back(newGameState);
+    auto port = readPort(argv[1]);
 
-        // Handle client messages
-        handle_client_message(client_socket, game_state, players, observers);
+    int servFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (servFd == -1)
+        error(1, errno, "socket failed");
 
-        // Remove disconnected players
-        remove_disconnected_players(players, observers);
+    if (setsockopt(servFd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)))
+        error(1, errno, "setsockopt failed");
 
-        // Update the game state
-        update_game_state(game_state, players);
+    sockaddr_in serverAddr{
+        .sin_family = AF_INET,
+        .sin_port = htons((short)port),
+        .sin_addr = {INADDR_ANY}};
+    if (bind(servFd, (sockaddr *)&serverAddr, sizeof(serverAddr)))
+        error(1, errno, "bind failed");
 
-        // Send game state updates to all clients
-        send_game_state_to_clients(game_state, players, observers);
+    if (listen(servFd, 1))
+        error(1, errno, "listen failed");
+    int cfd;
+    // send them rooms info
+    while (true)
+    {
+
+        sockaddr_in clientAddr;
+        socklen_t clientAddrSize = sizeof(clientAddr);
+
+        cfd = accept(servFd, (sockaddr *)&clientAddr, &clientAddrSize);
+        if (cfd == -1)
+            error(1, errno, "accept failed");
+
+        clientFds.insert(cfd);
+
+        // tell who has connected
+        printf("new connection from: %s:%hu (fd: %d)\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port), cfd);
+
+        std::thread t(handleClient, cfd);
+        t.detach();
     }
+    // create new room or join client with existing room
+    // send gamestate to all clients
+}
+uint16_t readPort(char *txt)
+{
+    char *ptr;
+    int port = strtol(txt, &ptr, 10);
+    if (*ptr != 0 || port < 1 || port > 65535)
+        error(1, 0, "illegal argument %s", txt);
+    return port;
+}
+std::string roomsInfo()
+{
+    std::string info = "";
+    int i = 0;
+    std::unique_lock<std::mutex> lock(roomsMutex);
+    for (const auto& room : rooms)
+    {
+        info.append(std::to_string(++i)+": "+room->name + "\n");
+    }
+    std::cout<<info<<std::endl;
+    return info;
+}
 
-    // Close the server socket
-    close_socket(server_socket);
+void handleClient(int fd)
+{
 
-    return 0;
+    char buffer[256];
+
+    while (true)
+    {
+        // Read a message
+
+        memset(buffer, 0, sizeof(buffer));
+        int count = read(fd, buffer, sizeof(buffer));
+
+        // Handle disconnection
+        if (count <= 0)
+        {
+            printf("removing %d\n", fd);
+
+            // Lock the mutex before modifying the clientFds set
+            std::unique_lock<std::mutex> lock(clientFdsMutex);
+            clientFds.erase(fd);
+            shutdown(fd, SHUT_RDWR);
+
+            close(fd);
+            return; // Exit the loop for this client
+        }
+        else if (strcmp(buffer, "getrooms") == 0)
+        {
+            printf("getrooms\n");
+            std::size_t s =rooms.size();
+            if (write(fd, &s, count) != count);
+            std::string info = roomsInfo();
+            const char* bufer = info.c_str();
+            if (write(fd, bufer, count) != count);
+            // bad.insert(fd);
+        }
+        // Broadcast the message to all clients
+        {
+            // Lock the mutex before accessing the clientFds set
+            printf("from %d:%s\n", fd, buffer);
+            std::unique_lock<std::mutex> lock(clientFdsMutex);
+            // sendToAllBut(fd, buffer, count);
+        }
+    }
 }

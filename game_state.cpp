@@ -11,6 +11,7 @@
 
 class GameState {
 private:
+    int numPlayers; 
     std::vector<Player> players;
     std::vector<Player> observers;
     b2World world=b2World({0.0f,0.0f});
@@ -27,7 +28,10 @@ private:
 
 
 
+
 public:
+    std::string name="";
+    bool game_over = false;
 GameState(){
     if (!m_font.loadFromFile("resources/arial.ttf"))
     {
@@ -35,8 +39,8 @@ GameState(){
     }
     gate1=Gate(false,m_font);
     gate2=Gate(true,m_font);
+    numPlayers=0;
 }
-    bool game_over = false;
     void startNewGame(){
         int score_left = 0;
         int score_right = 0;
@@ -47,6 +51,7 @@ GameState(){
         }
     }
     void addPlayer( float initialX, float initialY,sf::Color color, std::string name,std::string id) {
+        numPlayers++;
         players.emplace_back(Player(world,sf::Vector2f(initialX,initialY),sf::Color::Blue,name,id,m_font));
     }
 
@@ -74,6 +79,7 @@ GameState(){
         
     }
     void removePlayer(std::string player_id){
+        numPlayers--;
         std::vector<Player>::iterator it = std::find_if(players.begin(), players.end(),
                            [&](Player& player) {
                                return player.get_id() == player_id;
