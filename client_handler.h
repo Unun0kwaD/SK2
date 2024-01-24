@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <unistd.h>
+#include <cstdlib>
+
 
 class Handler{
     public:
@@ -17,8 +20,12 @@ class Handler{
     int connectToServer(char* ip, char* port);
     int getRoomsInfo();
     int selectRoom();
-    int createRoom();
-    int joinRoom();
     int recvGameState();
     int sendPlayerState();
+    private:
+    uint16_t number_of_rooms;
+    void sendMessage(char* message);
+    void recvMessage(char* message,int size);
+    uint16_t recvSize();
+    void sendSize(uint16_t size);
 };

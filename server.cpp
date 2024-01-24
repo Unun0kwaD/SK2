@@ -38,9 +38,9 @@ int main(int argc, char **argv)
     newGameState->name="Default";
     // Add the new GameState to the vector using emplace_back
     rooms.emplace_back(newGameState);
-    auto port = readPort(argv[1]);
+    auto port = readPort("9999");
 
-    int servFd = socket(AF_INET, SOCK_STREAM, 0);
+    int servFd = socket(PF_INET, SOCK_STREAM, 0);
     if (servFd == -1)
         error(1, errno, "socket failed");
 
@@ -116,8 +116,6 @@ void handleClient(int fd)
         if (count <= 0)
         {
             printf("removing %d\n", fd);
-
-            // Lock the mutex before modifying the clientFds set
             std::unique_lock<std::mutex> lock(clientFdsMutex);
             clientFds.erase(fd);
             shutdown(fd, SHUT_RDWR);
@@ -128,12 +126,30 @@ void handleClient(int fd)
         else if (strcmp(buffer, "getrooms") == 0)
         {
             printf("getrooms\n");
-            std::size_t s =rooms.size();
-            if (write(fd, &s, count) != count);
+            uint16_t s =rooms.size();
+            printf("num of rooms:%u\n",s);
+            s=htons(s);
+            write(fd, &s, sizeof(uint16_t));
             std::string info = roomsInfo();
-            const char* bufer = info.c_str();
-            if (write(fd, bufer, count) != count);
-            // bad.insert(fd);
+            const  char* message=info.c_str();
+            uint16_t size=info.length();
+            printf("rozmiar wiadmości: %d\n",size);
+            size=htons(size);
+            write(fd, &size, sizeof(uint16_t));
+            write(fd, message, size);
+        }else if (strcmp(buffer, "createroom") == 0)
+        {
+            printf("createroom\n");
+            uint16_t s =rooms.size();
+            
+            rooms.insert
+            
+        }
+        else if (strcmp(buffer, "selectroom") == 0)
+        {
+            printf("createroom\n");
+            uint16_t s =rooms.size();
+            
         }
         // Broadcast the message to all clients
         {
