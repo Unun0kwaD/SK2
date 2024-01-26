@@ -6,7 +6,6 @@
 #include "Walls.h"
 #include "Ball.h"
 #include "Gate.h"
-#include "game_state.cpp"
 #include "client_handler.h"
 
 int main(int argc, char **argv)
@@ -18,20 +17,32 @@ int main(int argc, char **argv)
     handler.connectToServer("127.0.0.1", "9999");
     handler.getRoomsInfo();
     handler.selectRoom();
+    // while(true)std::cout<<handler.recvGameState()<<std::endl;
+
     // select room or create one by sending proper message
-    // get the game state and update it
-    // send message about keys that are pressed or exiting
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(30);
 
     GameState game;
     handler.game.startNewGame();
     float x, y;
-    sf::Clock clock;
+    // sf::Clock clock;
+    float coords[14];
+    int timeLeftInWaitingRoom, players;
     while (window.isOpen())
     {
-        
-        handler.recvGameState();
+        // get the game state and update it
+        // send message about keys that are pressed or exiting
+        players = handler.recvSize();
+        handler.recvGameState(coords);
+        timeLeftInWaitingRoom=handler.recvSize();
+
+        game.DisplayTime(timeLeftInWaitingRoom);
+        while (game.numPlayers < players)
+        {
+            game.addPlayer("unknown");
+        }
+        game.updateFromMessage(coords);
 
         sf::Event event;
         while (window.pollEvent(event))
@@ -66,6 +77,7 @@ int main(int argc, char **argv)
         game.Draw(window);
         window.display();
     }
+    return 0;
 }
 // // Physics variables
 // float timeStep = 1.0f / 60.0f;

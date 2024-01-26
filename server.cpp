@@ -12,10 +12,11 @@
 #include <thread>
 #include <vector>
 #include <string>
-#include "game_state.cpp"
+#include <game_state.h>
 #include <cstring>
 #include <memory>
 #include <room.h>
+#include <signal.h>
 
 std::mutex roomsMutex;
 std::vector<std::shared_ptr<Room>> rooms;
@@ -26,13 +27,19 @@ uint16_t recvSize(int fd);
 std::string recvMessage(int fd);
 const int one = 1;
 
+
 int main(int argc, char **argv)
-{
+{	// prevent dead sockets from throwing pipe errors on write
+	signal(SIGPIPE, SIG_IGN);
     // prime sockets waits for new clients
     // create initial room;
     auto DefaultRoom = std::make_shared<Room>();
     DefaultRoom->name = "Default";
     rooms.emplace_back(DefaultRoom);
+    std::thread t([room = rooms.back()]()
+                        { room->roomLoop(); });
+            t.detach();
+
     auto port = readPort("9999");
 
     int servFd = socket(PF_INET, SOCK_STREAM, 0);
@@ -104,7 +111,7 @@ void handleClient(int fd)
         // Read a message
 
         memset(buffer, 0, sizeof(buffer));
-        int count = recv(fd, buffer, sizeof(buffer),0);
+        int count = recv(fd, buffer, recvSize(fd),MSG_WAITALL);
     
         // Handle disconnection
         if (count <= 0)
@@ -126,8 +133,8 @@ void handleClient(int fd)
             const char *message = info.c_str();
             uint16_t size = info.length();
             printf("rozmiar wiadmości: %d\n", size);
-            size = htons(size);
-            send(fd, &size, sizeof(uint16_t),0);
+            uint16_t sizeh = htons(size);
+            send(fd, &sizeh, sizeof(uint16_t),0);
             send(fd, message, size,0);
         }
         else if (strcmp(buffer, "createroom") == 0)
@@ -136,7 +143,7 @@ void handleClient(int fd)
 
             std::unique_lock<std::mutex> lock(roomsMutex);
             auto DefaultRoom = std::make_shared<Room>();
-            DefaultRoom->name = "Default";
+            DefaultRoom->name = recvMessage(fd);
             std::string name = recvMessage(fd);
             DefaultRoom->addClient(fd, name);
             rooms.emplace_back(DefaultRoom);
@@ -147,6 +154,7 @@ void handleClient(int fd)
             std::thread t([room = rooms.back()]()
                         { room->roomLoop(); });
             t.detach();
+            return;
         }
         else if (strcmp(buffer, "selectroom") == 0)
         {
@@ -155,6 +163,7 @@ void handleClient(int fd)
             uint16_t choise = recvSize(fd);
             std::string name = recvMessage(fd);
             rooms.at(choise)->addClient(fd, name);
+            return;
         }
     }
 }
@@ -164,13 +173,14 @@ uint16_t recvSize(int fd)
     if (recv(fd, &size, sizeof(uint16_t), MSG_WAITALL) < 0)
         perror("read failed");
     size = ntohs(size);
+    printf("Otrzymano rozmiar: %u\n",size);
     return size;
 }
 std::string recvMessage(int fd)
 {
     uint16_t size =recvSize(fd);
     char message[size+1];
-    
+    memset(message,0,size+1);
     int count = recv(fd, message, size, MSG_WAITALL);
     if (count < 0)
     {
@@ -180,7 +190,7 @@ std::string recvMessage(int fd)
     {
         printf("Connection closed by server\n");
     }
-    else if (count < sizeof(message))
+    else if (count < size)
     {
         printf("not whole message recieved\n");
     }

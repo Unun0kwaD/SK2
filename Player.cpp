@@ -32,17 +32,24 @@ float unify_speed(float a){
 void Player::ApplyForce(float x,float y) {
     m_body->ApplyForceToCenter(b2Vec2(unify_speed(x),unify_speed(y)),true);
 }
-void Player::Draw(sf::RenderWindow& window) {
+void Player::Update() {
     b2Vec2 position = m_body->GetPosition();
     m_shape.setPosition(position.x * SCALE, position.y * SCALE);
     m_shape.setRotation(m_body->GetAngle() * 180.0f / b2_pi);
     m_name.setPosition(m_shape.getPosition());
+}
+void Player::Draw(sf::RenderWindow& window) {
     window.draw(m_shape);
     window.draw(m_name);
 }
 std::string Player::GetName()
 {
     return name;
+}
+void Player::SetName(std::string n)
+{
+    name=n;
+    m_name.setString(n);
 }
 int Player::get_id() {
     return id;
@@ -63,6 +70,13 @@ void Player::moveToPosition(sf::Vector2f position){
     b2World* worldptr = m_body->GetWorld();
     m_body->GetWorld()->DestroyBody(m_body);
     createBody(worldptr,position);
+}
+void Player::moveToPosition(float x,float y){
+    m_body->SetTransform(b2Vec2(x,y),0.0f);
+    }
+void Player::setShapePosition(float x,float y){
+    m_name.setPosition(x*SCALE,y*SCALE);
+    m_shape.setPosition(x*SCALE,y*SCALE);
 }
 void Player::createBody(b2World* world,sf::Vector2f position){
     b2BodyDef bodyDef;

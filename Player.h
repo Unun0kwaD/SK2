@@ -14,9 +14,11 @@ public:
     // ~Player();
     void ApplyForce(b2Vec2 force);
     void ApplyForce(float x,float y);
+    void Update();
     void ClampToWindowBounds(sf::Vector2f windowSize);
     void Draw(sf::RenderWindow& window);
-
+    void moveToPosition(float x,float y);
+    void setShapePosition(float x,float y);
     std::string GetName();
     int get_id() ;
 
@@ -27,6 +29,7 @@ public:
     void moveToInitPosition();
     void RemoveBody();
     int id;
+    void SetName(std::string n);
 private:
     void createBody(b2World* world,sf::Vector2f position);
     b2Body* m_body;
