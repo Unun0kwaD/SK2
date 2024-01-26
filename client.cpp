@@ -6,7 +6,6 @@
 #include "Walls.h"
 #include "Ball.h"
 #include "Gate.h"
-#include "game_state.cpp"
 #include "client_handler.h"
 
 int main(int argc, char **argv)
@@ -27,16 +26,21 @@ int main(int argc, char **argv)
     GameState game;
     handler.game.startNewGame();
     float x, y;
-    sf::Clock clock;
-        float coords[14]; 
+    // sf::Clock clock;
+    float coords[14];
+    int timeLeftInWaitingRoom, players;
     while (window.isOpen())
     {
         // get the game state and update it
         // send message about keys that are pressed or exiting
+        players = handler.recvSize();
         handler.recvGameState(coords);
-        for (int i= 0; i < 14; i++)
+        timeLeftInWaitingRoom=handler.recvSize();
+
+        game.DisplayTime(timeLeftInWaitingRoom);
+        while (game.numPlayers < players)
         {
-        std::cout << coords[i] << std::endl;
+            game.addPlayer("unknown");
         }
         game.updateFromMessage(coords);
 

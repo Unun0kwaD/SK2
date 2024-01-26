@@ -9,15 +9,15 @@ void sendMessage(int fd, const char *message, int size)
 {
     int n = send(fd, message, size, 0);
     if (n < 0)
-        perror("send message error:");
+        printf("send message error:");
     if (n < sizeof(message))
         printf("not whole message sent\n");
 }
-void Room::sendGameState(int fd, float *message, int size)
+void Room::sendGameState(int fd, char *message, int size)
 {
     int n = send(fd, message, size, 0);
     if (n < 0)
-        perror("send message error:");
+        printf("send message error:");
     if (n < sizeof(message))
         printf("not whole message sent\n");
 }
@@ -26,7 +26,7 @@ Room::Room()
 {
     state.startNewGame();
     num_clients = 0;
-    waitTime = 100;
+    waitTime = 10;
 }
 void Room::addClient(int fd, std::string name)
 {
@@ -45,7 +45,7 @@ void Room::roomLoop()
             sleep(1);
         }
         else
-            while (waitTime > 0)
+            while (waitTime >= 0)
             {
                 // check on message queue with mutex if new clients arrived
                 //  printf("room loop: \n");
@@ -53,25 +53,32 @@ void Room::roomLoop()
                 // send information abaout time left to all clients
                 {
                     std::unique_lock<std::mutex> lock(clientFdsMutex);
+                    char message[14 * 6 + 1];
+                    state.createGameStateMessage(message);
+                    std::cout << message << std::endl;
+                    uint16_t size = 14 * 6 + 1;
+
                     for (int i = 0; i < num_clients; i++)
                     {
                         int f = clientsFd[i];
-                        float *smessage = state.createGameStateMessage();
-                        for (int i = 0; i < 14; i++)
-                        {
-                            std::cout << smessage[i] << std::endl;
-                        }
-                        uint16_t size = sizeof(float)*14;
-                        sendSize(f, size);
-                        sendGameState(f, smessage, size);
+
+                        sendSize(f, num_clients);
+                        send(f, message, 85, 0);
+                        sendSize(f, waitTime);
                     }
                 }
                 // remove those who left
                 waitTime--;
                 sleep(1);
             }
-        // send information to all players that game starts
-
+        // send players names
+        ingame = true;
+        char names[9 * 6];
+        state.getPlayersNames(names);
+        for (int i = 0; i < num_clients; i++)
+        {
+            send(clientsFd[i], names, 54, 0);
+        }
         // ingame
         while (!state.game_over)
         {

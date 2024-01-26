@@ -12,10 +12,11 @@
 #include <thread>
 #include <vector>
 #include <string>
-#include "game_state.cpp"
+#include <game_state.h>
 #include <cstring>
 #include <memory>
 #include <room.h>
+#include <signal.h>
 
 std::mutex roomsMutex;
 std::vector<std::shared_ptr<Room>> rooms;
@@ -26,8 +27,10 @@ uint16_t recvSize(int fd);
 std::string recvMessage(int fd);
 const int one = 1;
 
+
 int main(int argc, char **argv)
-{
+{	// prevent dead sockets from throwing pipe errors on write
+	signal(SIGPIPE, SIG_IGN);
     // prime sockets waits for new clients
     // create initial room;
     auto DefaultRoom = std::make_shared<Room>();
@@ -140,7 +143,7 @@ void handleClient(int fd)
 
             std::unique_lock<std::mutex> lock(roomsMutex);
             auto DefaultRoom = std::make_shared<Room>();
-            DefaultRoom->name = "Default";
+            DefaultRoom->name = recvMessage(fd);
             std::string name = recvMessage(fd);
             DefaultRoom->addClient(fd, name);
             rooms.emplace_back(DefaultRoom);

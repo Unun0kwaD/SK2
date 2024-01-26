@@ -35,7 +35,6 @@ void Ball::Update()
 
 void Ball::Draw(sf::RenderWindow& window)
 {
-    this->Update();
     window.draw(m_shape);
 }
 
@@ -52,7 +51,10 @@ void Ball::setPosition(float x,float y)
 {
     m_body->SetTransform(b2Vec2(x / SCALE, y / SCALE), 0);
 }
-
+void Ball::setShapePosition(float x,float y)
+{
+    m_shape.setPosition(x* SCALE,y* SCALE);
+}
 void Ball::reset()
 {
     m_body->SetTransform(b2Vec2(0, 0), 0);

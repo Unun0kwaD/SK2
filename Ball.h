@@ -14,10 +14,10 @@ public:
     void setPosition(float x, float y);
     float get_x();
     float get_y();
-private:
-
-    void SetPosition(const sf::Vector2f& position);
+    void setShapePosition(float x,float y);
     void Update();
+private:
+    void SetPosition(const sf::Vector2f& position);
     b2Body* m_body;
     sf::CircleShape m_shape;
 };

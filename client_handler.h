@@ -11,7 +11,8 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>
-#include "game_state.cpp"
+#include <game_state.h>
+#include <sstream>
 
 class Handler{
     public:
@@ -22,11 +23,12 @@ class Handler{
     int selectRoom();
     void recvGameState(float coords[14]);
     int sendPlayerState();
+    uint16_t recvSize();
     private:
     uint16_t number_of_rooms;
+    void sendMessage(std::string smessage);
     void sendMessage(char* message,int size);
     void recvMessage(char* message,int size);
     void recvCoordinates(float* coordinates,int size);
-    uint16_t recvSize();
     void sendSize(uint16_t size);
 };
