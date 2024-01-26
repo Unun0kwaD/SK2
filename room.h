@@ -12,7 +12,7 @@ class Room
 {
 public:
     Room();
-    bool ingame;  // for serwer to know if its ingame or new clients can join
+    bool ingame=false;  // for serwer to know if its ingame or new clients can join
     int waitTime; // time left to game to start automaticlly
     int num_clients;
     std::string name;
@@ -20,6 +20,7 @@ public:
     void roomLoop();
     // void gameLoop();
     void addClient(int fd, std::string name);
+    std::string getStateName();
 
 private:
     int h;

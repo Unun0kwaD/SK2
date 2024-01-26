@@ -27,6 +27,7 @@ class Handler{
     void sendMessage(char* message,int size);
     void recvMessage(char* message,int size);
     private:
+    char roomsStates[100];
     uint16_t number_of_rooms;
     void sendMessage(std::string smessage);
     void recvCoordinates(float* coordinates,int size);

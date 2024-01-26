@@ -88,12 +88,15 @@ uint16_t readPort(char *txt)
 std::string roomsInfo()
 {
     std::string info = "";
-    int i = 0;
+    char meta[2 * rooms.size()];
     std::unique_lock<std::mutex> lock(roomsMutex);
-    for (const auto &room : rooms)
+    for (int i = 0; i < rooms.size(); i++)
     {
-        info.append(std::to_string(++i) + ": " + room->name + "\n");
+        info.append(std::to_string(i + 1) + ": " + rooms[i]->name + " " + rooms[i]->getStateName() + "\n");
+        meta[2 * i] = '0' + rooms[i]->num_clients;
+        meta[2 * i + 1] = '0' + rooms[i]->ingame;
     }
+    info.append(meta, 2 * rooms.size());
     std::cout << info << std::endl;
     return info;
 }
@@ -152,8 +155,7 @@ void handleClient(int fd)
             {
                 roomPtr->roomLoop();
             };
-            std::thread t([room = rooms.back()]()
-                          { room->roomLoop(); });
+            std::thread t(threadFunction);
             t.detach();
             return;
         }

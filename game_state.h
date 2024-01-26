@@ -54,6 +54,7 @@ public:
 
     void Draw(sf::RenderWindow &window);
     void DisplayTime(int time);
+    void MovePlayersToInitPositions();
 };
 
 #endif 

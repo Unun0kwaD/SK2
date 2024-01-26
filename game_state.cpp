@@ -89,9 +89,15 @@ void GameState::Step()
 
     // Check for collisions
     if (gate1.CheckCollision(ball))
+    {
         score_right = gate1.get_score();
+        MovePlayersToInitPositions();
+    }
     if (gate2.CheckCollision(ball))
+    {
         score_left = gate2.get_score();
+        MovePlayersToInitPositions();
+    }
     if (score_left == 5 || score_right == 5)
     {
         game_over = true;
@@ -171,20 +177,31 @@ void GameState::DisplayTime(int time)
     timer.setString(std::to_string(time));
     // timer.setOrigin(3*WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
 }
-void GameState::setPlayersNames(char* names){
-    for (int i=0; i<numPlayers;i++) {
+void GameState::setPlayersNames(char *names)
+{
+    for (int i = 0; i < numPlayers; i++)
+    {
         char playerName[8];
         strncpy(playerName, names + i * 9, 8);
         players[i].SetName(playerName);
     }
 }
-void GameState::getPlayersNames(char* names) {
-    memset(names,0,54);
-    for (int i=0; i<numPlayers;i++) {
-        const std::string& playerName = players[i].GetName();
+void GameState::getPlayersNames(char *names)
+{
+    memset(names, 0, 54);
+    for (int i = 0; i < numPlayers; i++)
+    {
+        const std::string &playerName = players[i].GetName();
         // Copy the player name into the 'names' array
         strncpy(names + i * 9, playerName.c_str(), 8);
         // Ensure null-termination
         names[(i + 1) * 9 - 1] = '\0';
+    }
+}
+void GameState::MovePlayersToInitPositions()
+{
+    for (Player player : players)
+    {
+        player.moveToInitPosition();
     }
 }

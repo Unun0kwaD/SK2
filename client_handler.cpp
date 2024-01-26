@@ -89,7 +89,9 @@ int Handler::getRoomsInfo()
         char data[size + 1];
         memset(data, 0, size + 1);
         recvMessage(data, size);
+        memcpy(roomsStates, &data[size - 2 * number_of_rooms], 2 * number_of_rooms);
         printf("%s\n", data);
+        printf("%s\n", roomsStates);
     }
     return number_of_rooms;
 }
@@ -103,7 +105,7 @@ int Handler::selectRoom()
     std::string name;
     while (t > n || t < 0)
     {
-        std::cout << "Select room by number (0 to create room):";
+        std::cout << "Select available room by number (0 to create room):";
         std::cin >> t;
     }
     if (t == 0)
@@ -120,6 +122,19 @@ int Handler::selectRoom()
     }
     else
     {
+        while (roomsStates[2 * (t - 1)] >= '6')
+        {
+            std::cout << "Room is fulll!!!\nSelect diffrient room." << std::endl;
+            std::cout << "Select room by number (0 to create room):";
+            std::cin >> t;
+        }
+        while (roomsStates[2 * (t-1) + 1] == '1')
+        {
+            std::cout << "The game already started\nSelect diffrient room." << std::endl;
+            std::cout << "Select room by number (0 to create room):";
+            std::cin >> t;
+            // TODO dodaj do kolejki oczekujących lub do obserwatorów
+        }
         std::strcpy(buffer, "selectroom");
         sendSize(10);
         sendMessage(buffer, 10);
@@ -159,11 +174,11 @@ void Handler::recvGameState(float coords[14])
     }
 }
 
-int Handler::sendPlayerState(int n,float x, float y)
+int Handler::sendPlayerState(int n, float x, float y)
 {
     size_t bufferSize = 14;
     char message[bufferSize];
-    int len = snprintf(message, bufferSize, "%2.2f %2.2f %d", x, y,n%10);
-    send(prime_sock,message,14,0);
+    int len = snprintf(message, bufferSize, "%2.2f %2.2f %d", x, y, n % 10);
+    send(prime_sock, message, 14, 0);
     return 0;
 }

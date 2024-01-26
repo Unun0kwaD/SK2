@@ -27,6 +27,7 @@ Room::Room()
     state.startNewGame();
     num_clients = 0;
     waitTime = 30;
+    ingame=false;
 }
 void Room::addClient(int fd, std::string name)
 {
@@ -92,6 +93,7 @@ void Room::roomLoop()
             state.createGameStateMessage(statemessage);
             for (int i = 0; i < num_clients; i++)
             {
+                //broken pipe exception if clients disconnects
                 send(clientsFd[i], statemessage, 85, 0);
             }
             //recieve && apply forces by using poll; if n== 0 in the player state close the connection and delte player
@@ -109,4 +111,17 @@ void Room::roomLoop()
             state.Step();
         }
     }
+}
+
+std::string Room::getStateName(){
+    std::string name;
+    if (ingame){
+        name.append("in game ");
+    }
+    else{
+        name.append("in lobby ");
+    }
+    name.append(1,'0'+num_clients);
+    name.append("/6");
+    return name;
 }
