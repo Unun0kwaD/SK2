@@ -48,7 +48,7 @@ public:
 
     void updateFromMessage(float coordinates[14]);
 
-    void setPlayersNames(std::string names[6]);
+    void setPlayersNames(char *names);
 
     void getPlayersNames(char *names);
 

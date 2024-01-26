@@ -171,18 +171,16 @@ void GameState::DisplayTime(int time)
     timer.setString(std::to_string(time));
     // timer.setOrigin(3*WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
 }
-void GameState::setPlayersNames(std::string names[6]){
-    for (auto it = players.begin(); it != players.end(); ++it) {
-        auto index = std::distance(players.begin(), it);
-        if (index < 6) {
-            it->SetName(names[index]);
-        } else {
-            break;
-        }
+void GameState::setPlayersNames(char* names){
+    for (int i=0; i<numPlayers;i++) {
+        char playerName[8];
+        strncpy(playerName, names + i * 9, 8);
+        players[i].SetName(playerName);
     }
 }
 void GameState::getPlayersNames(char* names) {
-    for (int i=0; i<6;i++) {
+    memset(names,0,54);
+    for (int i=0; i<numPlayers;i++) {
         const std::string& playerName = players[i].GetName();
         // Copy the player name into the 'names' array
         strncpy(names + i * 9, playerName.c_str(), 8);

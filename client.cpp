@@ -28,21 +28,35 @@ int main(int argc, char **argv)
     float x, y;
     // sf::Clock clock;
     float coords[14];
-    int timeLeftInWaitingRoom, players;
+    char names[54];
+    int timeLeftInWaitingRoom = 10, players;
     while (window.isOpen())
     {
         // get the game state and update it
         // send message about keys that are pressed or exiting
-        players = handler.recvSize();
-        handler.recvGameState(coords);
-        timeLeftInWaitingRoom=handler.recvSize();
 
-        game.DisplayTime(timeLeftInWaitingRoom);
-        while (game.numPlayers < players)
+        // waiting room
+        if (timeLeftInWaitingRoom > 0)
         {
-            game.addPlayer("unknown");
+            players = handler.recvSize();
+            handler.recvGameState(coords);
+            timeLeftInWaitingRoom = handler.recvSize();
+            handler.recvMessage(names,54);
+
+            game.DisplayTime(timeLeftInWaitingRoom);
+            bool test=0;
+            while (game.numPlayers < players)
+            {
+                test=1;
+                game.addPlayer("");
+            }
+            if(test) game.setPlayersNames(names);
+            game.updateFromMessage(coords);
         }
-        game.updateFromMessage(coords);
+        if(timeLeftInWaitingRoom==0){
+            
+           
+        }
 
         sf::Event event;
         while (window.pollEvent(event))

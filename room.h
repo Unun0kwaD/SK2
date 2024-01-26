@@ -20,6 +20,7 @@ class Room{
     // void gameLoop();
     void addClient(int fd, std::string name);
     private:
+char names[9 * 6];
     void sendGameState(int fd,char *message, int size);
     int recievePlayersState();
     std::mutex clientFdsMutex;

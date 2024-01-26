@@ -24,11 +24,11 @@ class Handler{
     void recvGameState(float coords[14]);
     int sendPlayerState();
     uint16_t recvSize();
+    void sendMessage(char* message,int size);
+    void recvMessage(char* message,int size);
     private:
     uint16_t number_of_rooms;
     void sendMessage(std::string smessage);
-    void sendMessage(char* message,int size);
-    void recvMessage(char* message,int size);
     void recvCoordinates(float* coordinates,int size);
     void sendSize(uint16_t size);
 };

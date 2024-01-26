@@ -81,14 +81,17 @@ int Handler::getRoomsInfo()
     sendSize(10);
     sendMessage(buffer, 10);
     number_of_rooms = recvSize();
-    uint16_t size = recvSize();
     printf("number_of_rooms: %u\n", number_of_rooms);
-    printf("size:%u\n", size);
-    char data[size + 1];
-    memset(data, 0, size + 1);
-    recvMessage(data, size);
-    printf("%s\n", data);
-    return size;
+    if (number_of_rooms > 0)
+    {
+        uint16_t size = recvSize();
+        printf("size:%u\n", size);
+        char data[size + 1];
+        memset(data, 0, size + 1);
+        recvMessage(data, size);
+        printf("%s\n", data);
+    }
+    return number_of_rooms;
 }
 int Handler::selectRoom()
 {

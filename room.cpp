@@ -57,6 +57,7 @@ void Room::roomLoop()
                     state.createGameStateMessage(message);
                     std::cout << message << std::endl;
                     uint16_t size = 14 * 6 + 1;
+                    state.getPlayersNames(names);
 
                     for (int i = 0; i < num_clients; i++)
                     {
@@ -65,20 +66,17 @@ void Room::roomLoop()
                         sendSize(f, num_clients);
                         send(f, message, 85, 0);
                         sendSize(f, waitTime);
+
+                        // send players names
+                        send(f, names, 54, 0);
                     }
                 }
                 // remove those who left
                 waitTime--;
                 sleep(1);
             }
-        // send players names
         ingame = true;
-        char names[9 * 6];
-        state.getPlayersNames(names);
-        for (int i = 0; i < num_clients; i++)
-        {
-            send(clientsFd[i], names, 54, 0);
-        }
+
         // ingame
         while (!state.game_over)
         {
