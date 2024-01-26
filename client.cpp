@@ -41,21 +41,45 @@ int main(int argc, char **argv)
             players = handler.recvSize();
             handler.recvGameState(coords);
             timeLeftInWaitingRoom = handler.recvSize();
-            handler.recvMessage(names,54);
+            handler.recvMessage(names, 54);
 
             game.DisplayTime(timeLeftInWaitingRoom);
-            bool test=0;
+            bool test = 0;
             while (game.numPlayers < players)
             {
-                test=1;
+                test = 1;
                 game.addPlayer("");
             }
-            if(test) game.setPlayersNames(names);
+            if (test)
+                game.setPlayersNames(names);
             game.updateFromMessage(coords);
         }
-        if(timeLeftInWaitingRoom==0){
-            
-           
+        else
+        {
+            handler.recvGameState(coords);
+            game.updateFromMessage(coords);
+            x = 0.0f;
+            y = 0.0f;
+            if (window.hasFocus())
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+                {
+                    y = -20.0f;
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+                {
+                    y = 20.0f;
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+                {
+                    x = -20.0f;
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+                {
+                    x = 20.0f;
+                }
+            }
+            handler.sendPlayerState(1, x, y);
         }
 
         sf::Event event;
@@ -68,25 +92,7 @@ int main(int argc, char **argv)
                 break;
             }
         }
-        x = 0.0f;
-        y = 0.0f;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        {
-            y = -20.0f;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        {
-            y = 20.0f;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        {
-            x = -20.0f;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        {
-            x = 20.0f;
-        }
-        handler.sendPlayerState();
+
         window.clear(sf::Color(10, 200, 10));
         game.Draw(window);
         window.display();

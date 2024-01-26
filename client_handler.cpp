@@ -146,8 +146,8 @@ void Handler::recvGameState(float coords[14])
     char message[size];
     memset(message, 0, size);
     recvMessage(message, size);
-    printf(message);
-    printf("\n");
+    // printf(message);
+    // printf("\n");
     std::stringstream iss(message);
 
     float x, y;
@@ -159,7 +159,11 @@ void Handler::recvGameState(float coords[14])
     }
 }
 
-int Handler::sendPlayerState()
+int Handler::sendPlayerState(int n,float x, float y)
 {
+    size_t bufferSize = 14;
+    char message[bufferSize];
+    int len = snprintf(message, bufferSize, "%2.2f %2.2f %d", x, y,n%10);
+    send(prime_sock,message,14,0);
     return 0;
 }

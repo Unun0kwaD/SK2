@@ -26,7 +26,7 @@ Room::Room()
 {
     state.startNewGame();
     num_clients = 0;
-    waitTime = 10;
+    waitTime = 30;
 }
 void Room::addClient(int fd, std::string name)
 {
@@ -48,30 +48,38 @@ void Room::roomLoop()
             while (waitTime >= 0)
             {
                 // check on message queue with mutex if new clients arrived
-                //  printf("room loop: \n");
 
                 // send information abaout time left to all clients
                 {
-                    std::unique_lock<std::mutex> lock(clientFdsMutex);
-                    char message[14 * 6 + 1];
-                    state.createGameStateMessage(message);
-                    std::cout << message << std::endl;
-                    uint16_t size = 14 * 6 + 1;
-                    state.getPlayersNames(names);
 
-                    for (int i = 0; i < num_clients; i++)
+                    if (num_clients < 1)
                     {
-                        int f = clientsFd[i];
+                        /*
+                        for (int i = 0; i < clientsFd.size(); i++)
+                        {
+                            shutdown(clientsFd[i], SHUT_RDWR);
+                            close(clientsFd[i]);
+                            // TODO: sent information to serwer that its shutdown so that it will be destroyed
+                            return;
+                        }
+                        */
+                    }
+                    else
+                    {
+                        std::unique_lock<std::mutex> lock(clientFdsMutex);
+                        state.createGameStateMessage(statemessage);
+                        state.getPlayersNames(names);
+                        for (int i = 0; i < num_clients; i++)
+                        {
+                            int f = clientsFd[i];
 
-                        sendSize(f, num_clients);
-                        send(f, message, 85, 0);
-                        sendSize(f, waitTime);
-
-                        // send players names
-                        send(f, names, 54, 0);
+                            sendSize(f, num_clients);
+                            send(f, statemessage, 85, 0);
+                            sendSize(f, waitTime);
+                            send(f, names, 54, 0);
+                        }
                     }
                 }
-                // remove those who left
                 waitTime--;
                 sleep(1);
             }
@@ -80,23 +88,25 @@ void Room::roomLoop()
         // ingame
         while (!state.game_over)
         {
-            // send game state to every client
+            std::unique_lock<std::mutex> lock(clientFdsMutex);
+            state.createGameStateMessage(statemessage);
+            for (int i = 0; i < num_clients; i++)
             {
-                // Lock the mutex before accessing the clientFds set
-                std::unique_lock<std::mutex> lock(clientFdsMutex);
-                // sendToAll(buffer, count);
+                send(clientsFd[i], statemessage, 85, 0);
             }
-            // receive players acction using poll
-            // if client didnt answer remove
+            //recieve && apply forces by using poll; if n== 0 in the player state close the connection and delte player
+            //CHANGE TO POLL
+            for (int i = 0; i < num_clients; i++)
             {
-
-                std::unique_lock<std::mutex> lock(clientFdsMutex);
-                // clientFds.erase(fd);
-                // shutdown(fd, SHUT_RDWR);
-
-                // close(fd);
-                return; // Exit the loop for this client
+                recv(clientsFd[i], playerState, 14, 0);
+                // printf("%s\n",playerState);
+                std::stringstream iss(playerState);
+                iss>>x>>y>>h;
+                if(h){
+                    state.updatePlayerPosition(i,x,y);
+                }
             }
+            state.Step();
         }
     }
 }

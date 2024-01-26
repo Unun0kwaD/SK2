@@ -22,7 +22,7 @@ class Handler{
     int getRoomsInfo();
     int selectRoom();
     void recvGameState(float coords[14]);
-    int sendPlayerState();
+    int sendPlayerState(int n,float x, float y);
     uint16_t recvSize();
     void sendMessage(char* message,int size);
     void recvMessage(char* message,int size);
