@@ -12,7 +12,11 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 
-add_subdirectory(box2d)
+include(FetchContent)
+FetchContent_Declare(box2d
+    GIT_REPOSITORY https://github.com/erincatto/box2d.git
+    GIT_TAG v2.4.1)
+FetchContent_MakeAvailable(box2d)
 
 set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
