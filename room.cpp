@@ -15,7 +15,7 @@ void sendSize(int fd, uint16_t size)
 // }
 void Room::sendGameState(int fd, char *message, int size)
 {
-    int n = send(fd, message, size, 0);
+    unsigned long int n = send(fd, message, size, 0);
     if (n <= 0)
         printf("send message error:");
     if (n < sizeof(message))

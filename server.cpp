@@ -29,7 +29,11 @@ std::string recvMessage(int fd);
 const int one = 1;
 
 int main(int argc, char **argv)
-{ // prevent dead sockets from throwing pipe errors on write
+{
+     if (argc != 3)
+        error(1, 0, "Need 1 argument: port numeber");
+    
+       // prevent dead sockets from throwing pipe errors on write
     signal(SIGPIPE, SIG_IGN);
     // prime sockets waits for new clients
     // create initial room
@@ -91,7 +95,7 @@ std::string roomsInfo()
     std::string info = "";
     char meta[2 * rooms.size()];
     std::unique_lock<std::mutex> lock(roomsMutex);
-    for (int i = 0; i < rooms.size(); i++)
+    for (long unsigned int i = 0; i < rooms.size(); i++)
     {
         info.append(std::to_string(i + 1) + ": " + rooms[i]->name + " " + rooms[i]->getStateName() + "\n");
         meta[2 * i] = '0' + rooms[i]->num_clients;
@@ -164,7 +168,6 @@ void handleClient(int fd)
         else if (strcmp(buffer, "selectroom") == 0)
         {
             printf("selectroom\n");
-            uint16_t s = rooms.size();
             uint16_t choise = recvSize(fd);
             std::string name = recvMessage(fd);
             rooms.at(choise)->addClient(fd, name);

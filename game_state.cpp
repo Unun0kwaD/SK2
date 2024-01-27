@@ -157,7 +157,6 @@ void GameState::createGameStateMessage(char *message)
     }
     snprintf(message + len, bufferSize - len, " %d %d", score_left, score_right);
 
-    // Don't forget to free the allocated memory
     delete[] coordinates;
 }
 

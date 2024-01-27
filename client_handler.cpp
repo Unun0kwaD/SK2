@@ -6,29 +6,21 @@ void Handler::sendMessage(std::string smessage)
     uint16_t size = smessage.length();
     printf("rozmiar wiadmości: %d\n", size);
     sendSize(size);
-    int n = send(prime_sock, message, size, 0);
-    if (n < 0)
-        perror("send message error:");
+    long unsigned int n = send(prime_sock, message, size, 0);
     if (n < sizeof(message))
         printf("not whole message sent\n");
 }
 void Handler::sendMessage(char *message, int size)
 {
-    int n = send(prime_sock, message, size, 0);
-    if (n < 0)
-        perror("send message error:");
+    long unsigned int n = send(prime_sock, message, size, 0);
     if (n < sizeof(message))
         printf("not whole message sent\n");
 }
 
 void Handler::recvMessage(char *message, int size)
 {
-    int count = recv(prime_sock, message, size, MSG_WAITALL);
-    if (count < 0)
-    {
-        perror("read failed");
-    }
-    else if (count == 0)
+    long unsigned int count = recv(prime_sock, message, size, MSG_WAITALL);
+    if (count == 0)
     {
         close(prime_sock);
     }
@@ -54,11 +46,16 @@ void Handler::sendSize(uint16_t size)
 int Handler::connectToServer(char *ip, char *port)
 {
     // Resolve arguments to IPv4 address with a port number
-    addrinfo *resolved, hints = {.ai_flags = 0, .ai_family = AF_INET, .ai_socktype = SOCK_STREAM};
+    addrinfo *resolved, hints = {};
+    hints.ai_flags = 0;
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
     int res = getaddrinfo(ip, port, &hints, &resolved);
-    if (res || !resolved){
+    if (res || !resolved)
+    {
         error(1, 0, "getaddrinfo: %s", gai_strerror(res));
-        return -1;}
+        return -1;
+    }
     else
     {
         // create socket
@@ -102,14 +99,13 @@ int Handler::selectRoom()
     char buffer[32];
     memset(buffer, 0, sizeof(buffer));
 
-    int t ;
+    int t;
     std::string name;
     do
     {
         std::cout << "Select available room by number (0 to create room):";
         std::cin >> t;
-    }
-    while (t > number_of_rooms || t < 0);
+    } while (t > number_of_rooms || t < 0);
     if (t == 0)
     {
         std::strcpy(buffer, "createroom");
@@ -164,8 +160,6 @@ void Handler::recvGameState(char *message) // coords[14])
     recvMessage(message, size);
     // printf(message);
     // printf("\n");
-
-
 }
 
 int Handler::sendPlayerState(int n, float x, float y)
@@ -177,7 +171,8 @@ int Handler::sendPlayerState(int n, float x, float y)
     send(prime_sock, message, 15, 0);
     return 0;
 }
-void Handler::disconnect(){
-    shutdown(prime_sock,SHUT_RDWR);
+void Handler::disconnect()
+{
+    shutdown(prime_sock, SHUT_RDWR);
     close(prime_sock);
 }
