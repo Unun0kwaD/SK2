@@ -46,7 +46,7 @@ public:
 
     void createGameStateMessage(char *message);
 
-    void updateFromMessage(float coordinates[14]);
+    void updateFromMessage(char *message);
 
     void setPlayersNames(char *names);
 

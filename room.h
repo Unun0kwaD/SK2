@@ -26,9 +26,9 @@ private:
     int h;
     float x, y;
 
-    char statemessage[14 * 6 + 1];
+    char statemessage[14 * 6 + 1+4];
     char names[9 * 6];
-    char playerState[14];
+    char playerState[15];
     void sendGameState(int fd, char *message, int size);
     int recievePlayersState();
     std::mutex clientFdsMutex;

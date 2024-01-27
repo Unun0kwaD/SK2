@@ -21,7 +21,7 @@ class Handler{
     int connectToServer(char* ip, char* port);
     int getRoomsInfo();
     int selectRoom();
-    void recvGameState(float coords[14]);
+    void recvGameState(char *message);
     int sendPlayerState(int n,float x, float y);
     uint16_t recvSize();
     void sendMessage(char* message,int size);

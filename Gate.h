@@ -14,6 +14,7 @@ public:
     void IncrementScore();
     int get_score();
     void reset();
+    void set_score(int score);
 private:
     sf::RectangleShape m_shape;
     sf::Text m_scoreText;

@@ -27,9 +27,9 @@ int main(int argc, char **argv)
     handler.game.startNewGame();
     float x, y;
     // sf::Clock clock;
-    float coords[14];
+    char coords[14 * 6 + 4 + 1];
     char names[54];
-    int timeLeftInWaitingRoom = 10, players;
+    int timeLeftInWaitingRoom = 10, players,decision=1;
     while (window.isOpen())
     {
         // get the game state and update it
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
             handler.recvGameState(coords);
             timeLeftInWaitingRoom = handler.recvSize();
             handler.recvMessage(names, 54);
-
+            handler.sendPlayerState(decision,0.0f,0.0f);
             game.DisplayTime(timeLeftInWaitingRoom);
             bool test = 0;
             while (game.numPlayers < players)
@@ -79,9 +79,12 @@ int main(int argc, char **argv)
                     x = 20.0f;
                 }
             }
-            handler.sendPlayerState(1, x, y);
+            handler.sendPlayerState(decision, x, y);
+            if(game.game_over){
+                timeLeftInWaitingRoom=30;
+            }
         }
-
+        decision=1;
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -90,7 +93,13 @@ int main(int argc, char **argv)
             case sf::Event::Closed:
                 window.close();
                 break;
+            case sf::Event::KeyPressed:
+                if(event.key.code==sf::Keyboard::Key::Enter)
+                    decision=3;
+                else if(event.key.code==sf::Keyboard::Key::Escape)
+                    decision=5;
             }
+
         }
 
         window.clear(sf::Color(10, 200, 10));

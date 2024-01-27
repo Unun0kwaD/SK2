@@ -27,7 +27,7 @@ Room::Room()
     state.startNewGame();
     num_clients = 0;
     waitTime = 30;
-    ingame=false;
+    ingame = false;
 }
 void Room::addClient(int fd, std::string name)
 {
@@ -51,34 +51,44 @@ void Room::roomLoop()
                 // check on message queue with mutex if new clients arrived
 
                 // send information abaout time left to all clients
+
+                if (num_clients < 1)
                 {
-
-                    if (num_clients < 1)
+                    /*
+                    for (int i = 0; i < clientsFd.size(); i++)
                     {
-                        /*
-                        for (int i = 0; i < clientsFd.size(); i++)
-                        {
-                            shutdown(clientsFd[i], SHUT_RDWR);
-                            close(clientsFd[i]);
-                            // TODO: sent information to serwer that its shutdown so that it will be destroyed
-                            return;
-                        }
-                        */
+                        shutdown(clientsFd[i], SHUT_RDWR);
+                        close(clientsFd[i]);
+                        // TODO: sent information to serwer that its shutdown so that it will be destroyed
+                        return;
                     }
-                    else
+                    */
+                }
+                else
+                {
+                    std::unique_lock<std::mutex> lock(clientFdsMutex);
+                    memset(statemessage, 0, sizeof(statemessage));
+                    state.createGameStateMessage(statemessage);
+                    state.getPlayersNames(names);
+                    for (int i = 0; i < num_clients; i++)
                     {
-                        std::unique_lock<std::mutex> lock(clientFdsMutex);
-                        state.createGameStateMessage(statemessage);
-                        state.getPlayersNames(names);
-                        for (int i = 0; i < num_clients; i++)
-                        {
-                            int f = clientsFd[i];
+                        int f = clientsFd[i];
 
-                            sendSize(f, num_clients);
-                            send(f, statemessage, 85, 0);
-                            sendSize(f, waitTime);
-                            send(f, names, 54, 0);
+                        sendSize(f, num_clients);
+                        send(f, statemessage, 89, 0);
+                        sendSize(f, waitTime);
+                        send(f, names, 54, 0);
+                        recv(f, playerState, 15, 0);
+                        std::stringstream iss(playerState);
+                        iss >> x >> y >> h;
+                        if(h==5){
+                            //TODO rozłącz i usun gracza z gry
                         }
+                        else if (h == 3 && i==0)
+                        {
+                            waitTime = 1;
+                        }
+                        
                     }
                 }
                 waitTime--;
@@ -93,35 +103,42 @@ void Room::roomLoop()
             state.createGameStateMessage(statemessage);
             for (int i = 0; i < num_clients; i++)
             {
-                //broken pipe exception if clients disconnects
-                send(clientsFd[i], statemessage, 85, 0);
+                // broken pipe exception if clients disconnects
+                send(clientsFd[i], statemessage, 89, 0);
             }
-            //recieve && apply forces by using poll; if n== 0 in the player state close the connection and delte player
-            //CHANGE TO POLL
+            // recieve && apply forces by using poll; if n== 0 in the player state close the connection and delte player
+            // CHANGE TO POLL
             for (int i = 0; i < num_clients; i++)
             {
-                recv(clientsFd[i], playerState, 14, 0);
+                recv(clientsFd[i], playerState, 15, 0);
                 // printf("%s\n",playerState);
                 std::stringstream iss(playerState);
-                iss>>x>>y>>h;
-                if(h){
-                    state.updatePlayerPosition(i,x,y);
+                iss >> x >> y >> h;
+                if (h == 1)
+                {
+                    state.updatePlayerPosition(i, x, y);
                 }
             }
             state.Step();
         }
+        state.startNewGame();
+        waitTime = 30;
     }
 }
 
-std::string Room::getStateName(){
+
+std::string Room::getStateName()
+{
     std::string name;
-    if (ingame){
+    if (ingame)
+    {
         name.append("in game ");
     }
-    else{
+    else
+    {
         name.append("in lobby ");
     }
-    name.append(1,'0'+num_clients);
+    name.append(1, '0' + num_clients);
     name.append("/6");
     return name;
 }

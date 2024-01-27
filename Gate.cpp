@@ -56,3 +56,7 @@ void Gate::reset(){
     m_scoreText.setString(std::to_string(m_score));
 
 }
+void Gate::set_score(int score){
+     m_score=score;
+    m_scoreText.setString(std::to_string(m_score));
+}

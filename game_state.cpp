@@ -32,6 +32,8 @@ void GameState::startNewGame()
 {
     int score_left = 0;
     int score_right = 0;
+    gate1.reset();
+    gate2.reset();
     bool game_over = false;
     for (auto &player : players)
     {
@@ -128,28 +130,43 @@ void GameState::createGameStateMessage(char *message)
         coordinates[3 + i * 2] = static_cast<float>(players[i].get_y());
     }
 
-    size_t bufferSize = 14 * 6 + 1;
+    size_t bufferSize = 14 * 6 + 1 + 4;
 
     int len = snprintf(message, bufferSize, "%2.2f %2.2f", coordinates[0], coordinates[1]);
     for (int i = 0; i < players.size(); i++)
     {
         len += snprintf(message + len, bufferSize - len, " %2.2f %2.2f", coordinates[2 + i * 2], coordinates[3 + i * 2]);
     }
+    len += snprintf(message + len, bufferSize - len, " %d %d", score_left, score_right);
 
     // Don't forget to free the allocated memory
     delete[] coordinates;
 }
 
-void GameState::updateFromMessage(float coordinates[14])
+void GameState::updateFromMessage(char *message) // float coordinates[14])
 {
-    ball.setShapePosition(coordinates[0], coordinates[1]);
-    int i;
-    for (int i = 0; i < 14; i++)
+    // memset(coords, 0, sizeof(float) * 14);
+    std::stringstream iss(message);
+
+    float x, y;
+    int i = 0;
+
+    iss >> x >> y;
+    ball.setShapePosition(x,y);
+
+    for (int i = 0; i < numPlayers; i++)
     {
-        if (coordinates[2 + i * 2] != 0.0f && coordinates[3 + i * 2] != 0.0f)
-            players[i].setShapePosition(coordinates[2 + i * 2], coordinates[3 + i * 2]);
+        iss >> x >> y;
+        if (x != 0.0f || y != 0.0f)
+            players[i].setShapePosition(x, y);
         else
             break;
+    }
+    iss>>score_left>>score_right;
+    gate1.set_score(score_left);
+    gate2.set_score(score_right);
+    if(score_left>=5 || score_right>=5 ){
+        game_over=true;
     }
     // while(i<14 &&coordinates[2 + i * 2]>0 && coordinates[2 + i * 2]>0 ){
     //     addPlayer("noname");
