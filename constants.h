@@ -6,5 +6,5 @@
 #define BALL_RADIUS 10.0f
 #define GATE_WIDTH 20.0f
 #define GATE_HEIGHT 100.0f
-#define PORT_NUMBER 54000
-#define PLAYER_SPEED 10.f
+#define PORT_NUMBER 5400
+#define PLAYER_SPEED 20.f

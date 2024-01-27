@@ -171,6 +171,7 @@ void Room::roomLoop()
                 break;
             }
         }
+        ingame = false;
         waitTime = 30;
         state.startNewGame();
     }

@@ -162,19 +162,10 @@ void Handler::recvGameState(char *message) // coords[14])
     // char message[size];
     memset(message, 0, size);
     recvMessage(message, size);
-    printf(message);
-    printf("\n");
+    // printf(message);
+    // printf("\n");
 
-    // memset(coords, 0, sizeof(float) * 14);
-    // std::stringstream iss(message);
 
-    // float x, y;
-    // int i = 0;
-    // while (iss >> x >> y)
-    // {
-    //     coords[i++] = x;
-    //     coords[i++] = y;
-    // }
 }
 
 int Handler::sendPlayerState(int n, float x, float y)

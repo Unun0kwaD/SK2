@@ -91,7 +91,7 @@ void Player::createBody(b2World* world,sf::Vector2f position){
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;
-    fixtureDef.density = 0.3f;
+    fixtureDef.density = 0.05f;
     fixtureDef.friction = 0.3f;
 
     m_body->CreateFixture(&fixtureDef);
