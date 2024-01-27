@@ -30,7 +30,7 @@ const int one = 1;
 
 int main(int argc, char **argv)
 {
-     if (argc != 3)
+     if (argc != 2)
         error(1, 0, "Need 1 argument: port numeber");
     
        // prevent dead sockets from throwing pipe errors on write
