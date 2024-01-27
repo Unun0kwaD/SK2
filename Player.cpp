@@ -97,7 +97,6 @@ void Player::createBody(b2World* world,sf::Vector2f position){
     m_body->CreateFixture(&fixtureDef);
 }
 void Player::RemoveBody(){
-    b2World* worldptr = m_body->GetWorld();
     m_body->GetWorld()->DestroyBody(m_body);
     std::cout<<"Player is dead"<<std::endl;
 }

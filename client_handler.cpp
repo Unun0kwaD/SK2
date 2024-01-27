@@ -56,19 +56,21 @@ int Handler::connectToServer(char *ip, char *port)
     // Resolve arguments to IPv4 address with a port number
     addrinfo *resolved, hints = {.ai_flags = 0, .ai_family = AF_INET, .ai_socktype = SOCK_STREAM};
     int res = getaddrinfo(ip, port, &hints, &resolved);
-    if (res || !resolved)
+    if (res || !resolved){
         error(1, 0, "getaddrinfo: %s", gai_strerror(res));
+        return -1;}
+    else
+    {
+        // create socket
+        prime_sock = socket(resolved->ai_family, resolved->ai_socktype, 0);
+        if (prime_sock == -1)
+            error(1, errno, "socket failed");
 
-    // create socket
-    prime_sock = socket(resolved->ai_family, resolved->ai_socktype, 0);
-    if (prime_sock == -1)
-        error(1, errno, "socket failed");
-
-    // attempt to connect
-    res = connect(prime_sock, resolved->ai_addr, resolved->ai_addrlen);
-    if (res < 0)
-        error(1, errno, "connect failed");
-
+        // attempt to connect
+        res = connect(prime_sock, resolved->ai_addr, resolved->ai_addrlen);
+        if (res < 0)
+            error(1, errno, "connect failed");
+    }
     // free memory
     freeaddrinfo(resolved);
     // std::thread t(receiver, sock);
@@ -100,14 +102,14 @@ int Handler::selectRoom()
     char buffer[32];
     memset(buffer, 0, sizeof(buffer));
 
-    int t = -1;
-    int n = number_of_rooms;
+    int t ;
     std::string name;
-    while (t > n || t < 0)
+    do
     {
         std::cout << "Select available room by number (0 to create room):";
         std::cin >> t;
     }
+    while (t > number_of_rooms || t < 0);
     if (t == 0)
     {
         std::strcpy(buffer, "createroom");
@@ -153,16 +155,16 @@ int Handler::selectRoom()
     send(prime_sock, message, name.length(), 0);
     return 0;
 }
-void Handler::recvGameState(char *message )//coords[14])
+void Handler::recvGameState(char *message) // coords[14])
 {
 
-    int size = 14 * 6 +4+1;
+    int size = 14 * 6 + 4 + 1;
     // char message[size];
     memset(message, 0, size);
     recvMessage(message, size);
     printf(message);
     printf("\n");
-    
+
     // memset(coords, 0, sizeof(float) * 14);
     // std::stringstream iss(message);
 
@@ -179,8 +181,12 @@ int Handler::sendPlayerState(int n, float x, float y)
 {
     size_t bufferSize = 15;
     char message[bufferSize];
-    memset(message,0,bufferSize);
-    int len = snprintf(message, bufferSize, "%2.2f %2.2f %d", x, y, n % 10);
+    memset(message, 0, bufferSize);
+    snprintf(message, bufferSize, "%2.2f %2.2f %d", x, y, n % 10);
     send(prime_sock, message, 15, 0);
     return 0;
+}
+void Handler::disconnect(){
+    shutdown(prime_sock,SHUT_RDWR);
+    close(prime_sock);
 }

@@ -20,17 +20,14 @@ public:
     void roomLoop();
     // void gameLoop();
     void addClient(int fd, std::string name);
+    void removeClient( int id);
     std::string getStateName();
 
 private:
-    int h;
-    float x, y;
-
-    char statemessage[14 * 6 + 1+4];
-    char names[9 * 6];
-    char playerState[15];
+    
     void sendGameState(int fd, char *message, int size);
     int recievePlayersState();
     std::mutex clientFdsMutex;
-    std::vector<int> clientsFd;
+    int clientsFd[6];
+    int health[6];
 };

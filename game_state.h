@@ -12,7 +12,7 @@ class GameState
 {
 private:
     std::vector<Player> players;
-    std::vector<Player> observers;
+    // std::vector<Player> observers;
     b2World world = b2World({0.0f, 0.0f});
     Ball ball = Ball(world, sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), BALL_RADIUS);
     Gate gate1;
@@ -26,6 +26,7 @@ private:
     sf::Font m_font;
     sf::Text timer;
     int timeleft=0;
+    int activeslot[6];
 public:
     int numPlayers;
     bool game_over = false;
@@ -34,7 +35,7 @@ public:
 
     void startNewGame();
 
-    void addPlayer(std::string name);
+    int addPlayer(std::string name);
 
     void addPlayer(float initialX, float initialY, sf::Color color, std::string name, int id);
 
@@ -55,6 +56,7 @@ public:
     void Draw(sf::RenderWindow &window);
     void DisplayTime(int time);
     void MovePlayersToInitPositions();
+    bool isActive(int id);
 };
 
 #endif 

@@ -8,19 +8,20 @@
 #define SCALE 30.0f
 #define RADIUS 30.0f
 
-class Player {
+class Player
+{
 public:
-    Player(b2World& world, sf::Vector2f position, sf::Color color,std::string name,int id,sf::Font& m_font);
+    Player(b2World &world, sf::Vector2f position, sf::Color color, std::string name, int id, sf::Font &m_font);
     // ~Player();
     void ApplyForce(b2Vec2 force);
-    void ApplyForce(float x,float y);
+    void ApplyForce(float x, float y);
     void Update();
     void ClampToWindowBounds(sf::Vector2f windowSize);
-    void Draw(sf::RenderWindow& window);
-    void moveToPosition(float x,float y);
-    void setShapePosition(float x,float y);
+    void Draw(sf::RenderWindow &window);
+    void moveToPosition(float x, float y);
+    void setShapePosition(float x, float y);
     std::string GetName();
-    int get_id() ;
+    int get_id();
 
     float get_x();
     float get_y();
@@ -30,11 +31,11 @@ public:
     void RemoveBody();
     int id;
     void SetName(std::string n);
+
 private:
-    void createBody(b2World* world,sf::Vector2f position);
-    b2Body* m_body;
+    void createBody(b2World *world, sf::Vector2f position);
+    b2Body *m_body;
     sf::CircleShape m_shape;
-    int sockfd;
     std::string name;
     sf::Text m_name;
     sf::Vector2f init_position;

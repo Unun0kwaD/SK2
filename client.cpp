@@ -10,11 +10,11 @@
 
 int main(int argc, char **argv)
 {
-    //if (argc != 3)
-    //    error(1, 0, "Need 2 args");
+    // if (argc != 3)
+    //     error(1, 0, "Need 2 args");
     Handler handler;
     // connect to server and ask for rooms
-    handler.connectToServer("127.0.0.1","9999");//argv[1], argv[2]);
+    handler.connectToServer("127.0.0.1", "9999"); // argv[1], argv[2]);
     handler.getRoomsInfo();
     handler.selectRoom();
     // while(true)std::cout<<handler.recvGameState()<<std::endl;
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     // sf::Clock clock;
     char coords[14 * 6 + 4 + 1];
     char names[54];
-    int timeLeftInWaitingRoom = 10, players,decision=1;
+    int timeLeftInWaitingRoom = 10, players, decision = 1;
     while (window.isOpen())
     {
         // get the game state and update it
@@ -42,7 +42,14 @@ int main(int argc, char **argv)
             handler.recvGameState(coords);
             timeLeftInWaitingRoom = handler.recvSize();
             handler.recvMessage(names, 54);
-            handler.sendPlayerState(decision,0.0f,0.0f);
+            handler.sendPlayerState(decision, 0.0f, 0.0f);
+            if (decision == 5)
+            {
+                handler.disconnect();
+
+                window.close();
+                return 0;
+            }
             game.DisplayTime(timeLeftInWaitingRoom);
             bool test = 0;
             while (game.numPlayers < players)
@@ -57,6 +64,7 @@ int main(int argc, char **argv)
         else
         {
             handler.recvGameState(coords);
+            handler.sendPlayerState(decision, x, y);
             game.updateFromMessage(coords);
             x = 0.0f;
             y = 0.0f;
@@ -79,27 +87,30 @@ int main(int argc, char **argv)
                     x = 20.0f;
                 }
             }
-            handler.sendPlayerState(decision, x, y);
-            if(game.game_over){
-                timeLeftInWaitingRoom=30;
+            if (game.game_over)
+            {
+                timeLeftInWaitingRoom = 30;
+            }
+            if (decision == 5)
+            {
+                handler.disconnect();
+                return 0;
             }
         }
-        decision=1;
+        decision = 1;
         sf::Event event;
         while (window.pollEvent(event))
         {
             switch (event.type)
             {
             case sf::Event::Closed:
-                window.close();
-                break;
+                decision = 5;
             case sf::Event::KeyPressed:
-                if(event.key.code==sf::Keyboard::Key::Enter)
-                    decision=3;
-                else if(event.key.code==sf::Keyboard::Key::Escape)
-                    decision=5;
+                if (event.key.code == sf::Keyboard::Key::Enter)
+                    decision = 3;
+                else if (event.key.code == sf::Keyboard::Key::Escape)
+                    decision = 5;
             }
-
         }
 
         window.clear(sf::Color(10, 200, 10));

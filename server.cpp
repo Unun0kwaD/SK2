@@ -17,10 +17,11 @@
 #include <memory>
 #include <room.h>
 #include <signal.h>
+#include <queue>
 
 std::mutex roomsMutex;
 std::vector<std::shared_ptr<Room>> rooms;
-
+std::queue<int> destroyme;
 uint16_t readPort(char *txt);
 void handleClient(int fd);
 uint16_t recvSize(int fd);

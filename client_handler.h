@@ -26,6 +26,7 @@ class Handler{
     uint16_t recvSize();
     void sendMessage(char* message,int size);
     void recvMessage(char* message,int size);
+    void disconnect();
     private:
     char roomsStates[100];
     uint16_t number_of_rooms;
