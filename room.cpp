@@ -68,16 +68,18 @@ void Room::roomLoop()
 
             if (num_clients < 1)
             {
-                for (int i = 0; i < 6; i++)
-                {
-                    if (state.isActive(i))
-                    {
-                        removeClient(i);
-                    }
+                // for (int i = 0; i < 6; i++)
+                // {
+                //     if (state.isActive(i))
+                //     {
+                //         removeClient(i);
+                //     }
 
-                    // TODO: sent information to serwer that its shutdown so that it will be destroyed
-                }
-                return;
+                //     // TODO: sent information to serwer that its shutdown so that it will be destroyed
+                // }
+                // // destroyme.append(id_t);
+                // return;
+                waitTime=30;
             }
             else
             {
@@ -117,8 +119,8 @@ void Room::roomLoop()
                         }
                     }
                 }
+                waitTime--;
             }
-            waitTime--;
             sleep(1);
         }
         ingame = true;
@@ -164,6 +166,10 @@ void Room::roomLoop()
                 }
             }
             state.Step();
+            if (num_clients <= 0)
+            {
+                break;
+            }
         }
         state.startNewGame();
         waitTime = 30;

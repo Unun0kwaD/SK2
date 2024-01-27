@@ -126,7 +126,7 @@ void handleClient(int fd)
             return; // Exit the loop for this client
         }
         else if (strcmp(buffer, "getrooms") == 0)
-        {
+        {   
             printf("getrooms\n");
             uint16_t s = rooms.size();
             printf("num of rooms:%u\n", s);
@@ -150,6 +150,7 @@ void handleClient(int fd)
             auto DefaultRoom = std::make_shared<Room>();
             DefaultRoom->name = recvMessage(fd);
             std::string name = recvMessage(fd);
+            // DefaultRoom->id=rooms.length()-1;
             DefaultRoom->addClient(fd, name);
             rooms.emplace_back(DefaultRoom);
             auto threadFunction = [roomPtr = rooms.back()]()

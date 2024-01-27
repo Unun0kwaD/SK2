@@ -12,6 +12,7 @@ class Room
 {
 public:
     Room();
+    int id=0;
     bool ingame=false;  // for serwer to know if its ingame or new clients can join
     int waitTime; // time left to game to start automaticlly
     int num_clients;
