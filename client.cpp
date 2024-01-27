@@ -10,11 +10,11 @@
 
 int main(int argc, char **argv)
 {
-    // if (argc != 3)
-    //     error(1, 0, "Need 2 args");
+    if (argc != 3)
+        error(1, 0, "Need 2 args");
     Handler handler;
     // connect to server and ask for rooms
-    handler.connectToServer("127.0.0.1", "9999"); // argv[1], argv[2]);
+    handler.connectToServer( argv[1], argv[2]); //"127.0.0.1", "9999");
     handler.getRoomsInfo();
     handler.selectRoom();
     // while(true)std::cout<<handler.recvGameState()<<std::endl;

@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     //                     { room->roomLoop(); });
     //         t.detach();
 
-    auto port = readPort("9999");
+    auto port = readPort(argv[1]);
 
     int servFd = socket(PF_INET, SOCK_STREAM, 0);
     if (servFd == -1)

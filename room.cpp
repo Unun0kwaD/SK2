@@ -171,8 +171,8 @@ void Room::roomLoop()
                 break;
             }
         }
-        state.startNewGame();
         waitTime = 30;
+        state.startNewGame();
     }
 }
 
