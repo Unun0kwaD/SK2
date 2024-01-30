@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     // select room or create one by sending proper message
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Football", sf::Style::Close);
-    window.setFramerateLimit(30);
+    window.setFramerateLimit(60);
 
     GameState game;
     handler.game.startNewGame();
